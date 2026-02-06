@@ -50,6 +50,26 @@ public class StudentController {
         session.invalidate();
         return "redirect:/";
     }
+    
+    @GetMapping("/register")
+    public String registerPage(@RequestParam(value = "role", required = false) String role, Model model) {
+        if (role == null) return "redirect:/signup-selection";
+        
+        model.addAttribute("role", role); 
+        return "register"; 
+    }
+
+    @PostMapping("/doRegister")
+    public String doRegister(@ModelAttribute Student student, RedirectAttributes ra) {
+        try {
+            repo.save(student); 
+            ra.addFlashAttribute("msg", "Registration Successful! Please Login.");
+            return "redirect:/login?role=" + student.getRoleType();
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Registration Failed! Email might already exist.");
+            return "redirect:/signup-selection";
+        }
+    }
 
     
     //   2. ADMIN DASHBOARD & SIDEBAR PAGES
@@ -73,7 +93,7 @@ public class StudentController {
     @GetMapping("/admin/assignments")
     public String viewAssignments(HttpSession session, Model model) {
         if (session.getAttribute("user") == null) return "redirect:/login";
-        // Assignments are saved with studentId -1L
+        
         model.addAttribute("allStudentDocs", noticeRepo.findByStudentId(-1L));
         return "assignments_view"; 
     }
@@ -206,5 +226,28 @@ public class StudentController {
             ra.addFlashAttribute("error", "Upload Failed!");
         }
         return "redirect:/dashboard";
+    }
+    
+    @PostMapping("/contact-submit")
+    public String handleContact(@RequestParam String name, 
+                                @RequestParam String email, 
+                                @RequestParam String message, 
+                                HttpSession session, 
+                                RedirectAttributes ra) {
+        
+        
+        Student s = (Student) session.getAttribute("user");
+        
+        System.out.println("Contact Msg from: " + name);
+
+        
+        ra.addFlashAttribute("msg", "Message sent successfully!");
+
+        
+        if (s != null) {
+            return "redirect:/dashboard";
+        } else {
+            return "redirect:/"; 
+        }
     }
 }

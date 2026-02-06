@@ -21,7 +21,7 @@
             <div>
                 <%
                 int hour = java.time.LocalTime.now().getHour();
-                String greet = (hour >= 5 && hour < 17) ? "Good Morning" : "Good Evening";
+                String greet = (hour >= 5 && hour < 12) ? "Good Morning" : (hour < 17 ? "Good Afternoon" : "Good Evening");
                 request.setAttribute("simpleGreet", greet);
                 %>
                 <h2 class="text-5xl font-black uppercase italic tracking-tighter">
@@ -36,7 +36,7 @@
 
             <div class="relative w-full md:w-96">
                 <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-emerald-400"></i>
-                <input type="text" id="noticeSearch" placeholder="Search notices..."
+                <input type="text" id="noticeSearch" placeholder="Search announcements..."
                     class="w-full bg-white/5 border border-white/10 py-4 pl-14 pr-6 rounded-2xl outline-none focus:border-emerald-500 transition shadow-2xl">
             </div>
         </div>
@@ -55,11 +55,10 @@
                 </div>
 
                 <div class="bg-white/[0.03] border border-white/10 p-8 rounded-[3rem] shadow-2xl">
-                    <h4 class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-6 text-center italic">Monthly Trend</h4>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-6 text-center italic">Attendance Trend</h4>
                     <div class="h-40 relative">
                         <canvas id="attendanceChart"></canvas>
                     </div>
-                    <p class="text-center text-[9px] text-gray-500 mt-4 font-bold uppercase tracking-widest">Total Present: ${totalPresent} Days</p>
                 </div>
 
                 <div class="bg-white/[0.03] border border-white/10 p-8 rounded-[3rem] shadow-2xl">
@@ -68,16 +67,16 @@
                     </h4>
                     <form action="/student/uploadAssignment" method="POST" enctype="multipart/form-data" class="space-y-5">
                         <div>
-                            <label class="text-[8px] text-gray-600 font-black uppercase tracking-[0.2em] mb-2 block ml-1">Optional Note</label>
-                            <textarea name="message" rows="3" placeholder="Explain your submission..."
+                            <label class="text-[8px] text-gray-600 font-black uppercase tracking-[0.2em] mb-2 block ml-1">Submission Note</label>
+                            <textarea name="message" rows="3" placeholder="Briefly describe your file..."
                                 class="w-full bg-white/[0.02] border border-white/10 rounded-2xl p-4 text-[11px] text-gray-300 outline-none focus:border-emerald-500/40 transition-all resize-none shadow-inner"></textarea>
                         </div>
                         <div>
-                            <label class="text-[8px] text-gray-600 font-black uppercase tracking-[0.2em] mb-2 block ml-1">Select File</label>
+                            <label class="text-[8px] text-gray-600 font-black uppercase tracking-[0.2em] mb-2 block ml-1">Select Document</label>
                             <input type="file" name="file" class="block w-full text-[10px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-emerald-500/10 file:text-emerald-400 cursor-pointer" required>
                         </div>
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-black font-black text-[10px] uppercase tracking-[0.2em] py-4 rounded-2xl transition-all active:scale-95 shadow-lg shadow-emerald-500/20">
-                            Upload Now
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-black font-black text-[10px] uppercase tracking-[0.2em] py-4 rounded-2xl transition-all active:scale-95">
+                            Confirm Upload
                         </button>
                     </form>
                 </div>
@@ -85,19 +84,27 @@
 
             <div class="lg:col-span-2 space-y-6">
                 <h3 class="text-xs font-black uppercase tracking-[0.2em] mb-4 flex items-center gap-3 text-gray-400">
-                    <i class="fas fa-bullhorn text-emerald-400"></i> Announcements
+                    <i class="fas fa-bullhorn text-emerald-400"></i> Board Announcements
                 </h3>
+                
+                <c:if test="${empty notices}">
+                    <div class="p-20 text-center border border-dashed border-white/10 rounded-[3rem]">
+                        <p class="text-gray-600 uppercase font-black text-[10px] tracking-widest">No announcements for you yet</p>
+                    </div>
+                </c:if>
+
                 <c:forEach var="n" items="${notices}">
                     <div class="notice-card p-8 bg-white/[0.03] border border-white/5 rounded-[2.5rem] hover:border-emerald-500/30 transition-all group">
                         <div class="flex items-center justify-between mb-4">
-                            <span class="text-xs font-black text-white italic group-hover:text-emerald-400 transition-colors">${n.senderName}</span>
-                            <span class="text-[8px] font-bold text-gray-700">#REF-${n.id}</span>
+                            <span class="text-xs font-black text-white italic group-hover:text-emerald-400 transition-colors">By: ${n.senderName}</span>
+                            <span class="text-[8px] font-bold text-gray-700 uppercase tracking-widest">ID: #REF-${n.id}</span>
                         </div>
                         <p class="text-gray-300 text-sm leading-relaxed">${n.content}</p>
-                        <c:if test="${not empty n.fileName}">
-                            <div class="mt-4 pt-4 border-t border-white/5">
-                                <a href="/uploads/${n.fileName}" download class="inline-block text-emerald-400 text-[10px] font-black uppercase tracking-widest hover:underline">
-                                    <i class="fas fa-paperclip mr-1"></i> Download Attachment
+                        
+                        <c:if test="${not empty n.fileName and n.fileName ne 'No Attachment'}">
+                            <div class="mt-6 pt-4 border-t border-white/5">
+                                <a href="/uploads/${n.fileName}" class="inline-flex items-center gap-2 text-emerald-400 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors">
+                                    <i class="fas fa-paperclip"></i> View Resource
                                 </a>
                             </div>
                         </c:if>
@@ -110,12 +117,12 @@
     <%@ include file="footer.jsp"%>
 
     <script>
-        // Chart Fix: Added responsive and maintainAspectRatio
+        // Attendance Chart Logic
         const ctx = document.getElementById('attendanceChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['W1', 'W2', 'W3', 'W4', 'W5'],
+                labels: ['W1', 'W2', 'W3', 'W4', 'Present'],
                 datasets: [{
                     data: [${attendanceData[0]}, ${attendanceData[1]}, ${attendanceData[2]}, ${attendanceData[3]}, ${attendanceData[4]}],
                     borderColor: '#10b981',
@@ -123,13 +130,12 @@
                     borderWidth: 2,
                     tension: 0.4,
                     fill: true,
-                    pointRadius: 2,
+                    pointRadius: 3,
                     pointBackgroundColor: '#10b981'
                 }]
             },
             options: {
                 maintainAspectRatio: false,
-                responsive: true,
                 plugins: { legend: { display: false } },
                 scales: { 
                     y: { display: false, min: 0 }, 
@@ -138,7 +144,7 @@
             }
         });
 
-        // Search Filter Script
+        // Search Filter Logic
         document.getElementById('noticeSearch').addEventListener('keyup', function() {
             let val = this.value.toLowerCase();
             document.querySelectorAll('.notice-card').forEach(card => {
