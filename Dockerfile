@@ -5,5 +5,6 @@ RUN mvn clean package -DskipTests
 
 # Run stage
 FROM eclipse-temurin:17-jre-jammy
-COPY --from=build /target/*.jar app.jar
+# Yahan par hum "*" ka use kar rahe hain taaki koi bhi jar file utha le
+COPY --from=build /target/*.jar /app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
