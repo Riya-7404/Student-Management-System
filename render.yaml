@@ -2,11 +2,14 @@ services:
   - type: web
     name: student-management-system
     env: java
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar target/*.jar
+    buildCommand: "bash mvnw clean package -DskipTests"
+    startCommand: "java -jar target/*.jar"
     envVars:
       - key: SPRING_DATASOURCE_URL
-        fromService:
-          type: mysql
-          name: my-db
-          property: connectionString
+        value: jdbc:mysql://mysql-37804032-gaikwadriya138-5a94.d.aivencloud.com:14077/defaultdb?ssl-mode=REQUIRED
+      - key: SPRING_DATASOURCE_USERNAME
+        value: avnadmin
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: AVNS_T4WdQopaYKCdV77fUjq
+      - key: JAVA_VERSION
+        value: 17
