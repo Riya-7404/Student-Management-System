@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: student-management-system
+    env: java
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/*.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromService:
+          type: mysql
+          name: my-db
+          property: connectionString
