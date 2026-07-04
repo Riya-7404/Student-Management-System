@@ -5,6 +5,6 @@ RUN mvn clean package -DskipTests
 
 # Run stage
 FROM eclipse-temurin:17-jre-jammy
-# Ye command target folder ke andar kahin bhi jar file ko dhoond kar copy kar degi
-RUN find /target -name "*.jar" -exec cp {} /app.jar \;
+# Yahan par hum build stage ke /target folder se jar file ko utha rahe hain
+COPY --from=build /target/*.jar /app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
